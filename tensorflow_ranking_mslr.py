@@ -452,7 +452,9 @@ def train_and_eval():
             throttle_secs=30)
 
     # Train and validate
-    tf.estimator.train_and_evaluate(estimator, train_spec, vali_spec)
+    tf.estimator.train_and_evaluate(estimator, train_spec, vali_spec,
+                                    hooks=[wandb.tensorflow.WandbHook(steps_per_log=500)]
+                                    )
 
     # Evaluate on the test data.
     estimator.evaluate(input_fn=test_input_fn, hooks=[test_hook,
