@@ -453,12 +453,12 @@ def train_and_eval():
 
     # Train and validate
     tf.estimator.train_and_evaluate(estimator, train_spec, vali_spec,
-                                    hooks=[wandb.tensorflow.WandbHook(steps_per_log=500)]
+                                    # callbacks=[wandb.tensorflow.WandbHook(steps_per_log=500)]
                                     )
 
     # Evaluate on the test data.
     estimator.evaluate(input_fn=test_input_fn, hooks=[test_hook,
-                                                      # wandb.tensorflow.WandbHook(steps_per_log=500)
+                                                      wandb.tensorflow.WandbHook(steps_per_log=500)
                                                       ]
                        )
 
