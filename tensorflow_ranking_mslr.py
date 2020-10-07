@@ -72,6 +72,7 @@ import numpy as np
 import six
 import tensorflow as tf
 import tensorflow_ranking as tfr
+import wandb
 
 flags.DEFINE_string("train_path", None, "Input file path used for training.")
 flags.DEFINE_string("vali_path", None, "Input file path used for validation.")
@@ -423,13 +424,13 @@ def train_and_eval():
 
   train_spec = tf.estimator.TrainSpec(
       input_fn=train_input_fn,
-      hooks=[train_hook],
+      hooks=[train_hook, wandb.tensorflow.WandbHook(steps_per_log=1000)],
       max_steps=FLAGS.num_train_steps)
   # Export model to accept tf.Example when group_size = 1.
   if FLAGS.group_size == 1:
     vali_spec = tf.estimator.EvalSpec(
         input_fn=vali_input_fn,
-        hooks=[vali_hook],
+        hooks=[vali_hook, wandb.tensorflow.WandbHook(steps_per_log=1000)],
         steps=1,
         exporters=tf.estimator.LatestExporter(
             "latest_exporter",
@@ -439,7 +440,7 @@ def train_and_eval():
   else:
     vali_spec = tf.estimator.EvalSpec(
         input_fn=vali_input_fn,
-        hooks=[vali_hook],
+        hooks=[vali_hook, wandb.tensorflow.WandbHook(steps_per_log=1000)],
         steps=1,
         start_delay_secs=0,
         throttle_secs=30)
@@ -462,5 +463,5 @@ if __name__ == "__main__":
   flags.mark_flag_as_required("vali_path")
   flags.mark_flag_as_required("test_path")
   flags.mark_flag_as_required("output_dir")
-
+  wandb.init(config=FLAGS, sync_tensorboard=True)
   tf.compat.v1.app.run()
