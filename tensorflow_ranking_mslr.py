@@ -463,5 +463,5 @@ if __name__ == "__main__":
   flags.mark_flag_as_required("vali_path")
   flags.mark_flag_as_required("test_path")
   flags.mark_flag_as_required("output_dir")
-  wandb.init(config=FLAGS, sync_tensorboard=True)
+  wandb.init(config=FLAGS, sync_tensorboard=True, entity='iantheconway', project='learning_to_rank')
   tf.compat.v1.app.run()
