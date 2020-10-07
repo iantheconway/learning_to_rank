@@ -424,13 +424,17 @@ def train_and_eval():
 
     train_spec = tf.estimator.TrainSpec(
         input_fn=train_input_fn,
-        hooks=[train_hook, wandb.tensorflow.WandbHook(steps_per_log=1000)],
+        hooks=[train_hook,
+               # wandb.tensorflow.WandbHook(steps_per_log=500)
+               ],
         max_steps=FLAGS.num_train_steps)
     # Export model to accept tf.Example when group_size = 1.
     if FLAGS.group_size == 1:
         vali_spec = tf.estimator.EvalSpec(
             input_fn=vali_input_fn,
-            hooks=[vali_hook, wandb.tensorflow.WandbHook(steps_per_log=1000)],
+            hooks=[vali_hook,
+                   # wandb.tensorflow.WandbHook(steps_per_log=500)
+                   ],
             steps=1,
             exporters=tf.estimator.LatestExporter(
                 "latest_exporter",
@@ -440,7 +444,9 @@ def train_and_eval():
     else:
         vali_spec = tf.estimator.EvalSpec(
             input_fn=vali_input_fn,
-            hooks=[vali_hook, wandb.tensorflow.WandbHook(steps_per_log=1000)],
+            hooks=[vali_hook,
+                   # wandb.tensorflow.WandbHook(steps_per_log=500)
+                   ],
             steps=1,
             start_delay_secs=0,
             throttle_secs=30)
@@ -449,7 +455,10 @@ def train_and_eval():
     tf.estimator.train_and_evaluate(estimator, train_spec, vali_spec)
 
     # Evaluate on the test data.
-    estimator.evaluate(input_fn=test_input_fn, hooks=[test_hook])
+    estimator.evaluate(input_fn=test_input_fn, hooks=[test_hook,
+                                                      # wandb.tensorflow.WandbHook(steps_per_log=500)
+                                                      ]
+                       )
 
 
 def main(_):
