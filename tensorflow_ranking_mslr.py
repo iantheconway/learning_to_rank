@@ -453,15 +453,16 @@ def train_and_eval():
 
     # Train and validate
     train_result = tf.estimator.train_and_evaluate(estimator, train_spec, vali_spec)
+    print(train_result)
     for key, value in train_result.items():
         wandb.log({"train_{}".format(key): value})
     # Evaluate on the test data.
-    result = estimator.evaluate(input_fn=test_input_fn, hooks=[test_hook,
+    eval_result, _ = estimator.evaluate(input_fn=test_input_fn, hooks=[test_hook,
                                                                wandb.tensorflow.WandbHook(steps_per_log=500)
                                                                ]
                                 )
-    for key, value in result.items():
-        wandb.log({"eval_{}".format(key): value})
+
+    wandb.log({"eval_result": result})
 
 def main(_):
     tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.INFO)
