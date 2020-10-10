@@ -425,7 +425,7 @@ def train_and_eval():
     train_spec = tf.estimator.TrainSpec(
         input_fn=train_input_fn,
         hooks=[train_hook,
-               wandb.tensorflow.WandbHook(steps_per_log=500)
+               # wandb.tensorflow.WandbHook(steps_per_log=500)
                ],
         max_steps=FLAGS.num_train_steps)
     # Export model to accept tf.Example when group_size = 1.
