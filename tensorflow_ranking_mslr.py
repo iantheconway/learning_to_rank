@@ -452,16 +452,18 @@ def train_and_eval():
             throttle_secs=30)
 
     # Train and validate
-    tf.estimator.train_and_evaluate(estimator, train_spec, vali_spec,
-                                    # callbacks=[wandb.tensorflow.WandbHook(steps_per_log=500)]
+    train_result = tf.estimator.train_and_evaluate(estimator, train_spec, vali_spec,
+                                    callbacks=[wandb.tensorflow.WandbHook(steps_per_log=500)]
                                     )
-
+    for key, value in train_result.items():
+        wandb.log({"train_{}".format(key): value})
     # Evaluate on the test data.
-    estimator.evaluate(input_fn=test_input_fn, hooks=[test_hook,
-                                                      wandb.tensorflow.WandbHook(steps_per_log=500)
-                                                      ]
-                       )
-
+    result = estimator.evaluate(input_fn=test_input_fn, hooks=[test_hook,
+                                                               wandb.tensorflow.WandbHook(steps_per_log=500)
+                                                               ]
+                                )
+    for key, value in result.items():
+        wandb.log({"eval_{}".format(key): value})
 
 def main(_):
     tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.INFO)
