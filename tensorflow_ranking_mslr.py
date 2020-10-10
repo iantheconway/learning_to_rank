@@ -425,7 +425,7 @@ def train_and_eval():
     train_spec = tf.estimator.TrainSpec(
         input_fn=train_input_fn,
         hooks=[train_hook,
-               # wandb.tensorflow.WandbHook(steps_per_log=500)
+               wandb.tensorflow.WandbHook(steps_per_log=500)
                ],
         max_steps=FLAGS.num_train_steps)
     # Export model to accept tf.Example when group_size = 1.
@@ -433,7 +433,7 @@ def train_and_eval():
         vali_spec = tf.estimator.EvalSpec(
             input_fn=vali_input_fn,
             hooks=[vali_hook,
-                   # wandb.tensorflow.WandbHook(steps_per_log=500)
+                   wandb.tensorflow.WandbHook(steps_per_log=500)
                    ],
             steps=1,
             exporters=tf.estimator.LatestExporter(
@@ -445,16 +445,14 @@ def train_and_eval():
         vali_spec = tf.estimator.EvalSpec(
             input_fn=vali_input_fn,
             hooks=[vali_hook,
-                   # wandb.tensorflow.WandbHook(steps_per_log=500)
+                   wandb.tensorflow.WandbHook(steps_per_log=500)
                    ],
             steps=1,
             start_delay_secs=0,
             throttle_secs=30)
 
     # Train and validate
-    train_result = tf.estimator.train_and_evaluate(estimator, train_spec, vali_spec,
-                                    callbacks=[wandb.tensorflow.WandbHook(steps_per_log=500)]
-                                    )
+    train_result = tf.estimator.train_and_evaluate(estimator, train_spec, vali_spec)
     for key, value in train_result.items():
         wandb.log({"train_{}".format(key): value})
     # Evaluate on the test data.
