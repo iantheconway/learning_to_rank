@@ -463,7 +463,7 @@ def train_and_eval():
     for key, value in result.items():
         wandb.log({"eval_{}".format(key): value})
 
-
+    wandb.save()
 def main(_):
     tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.INFO)
     with tf.Graph().as_default():
