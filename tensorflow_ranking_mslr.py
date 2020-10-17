@@ -453,7 +453,7 @@ def train_and_eval():
             throttle_secs=30)
 
     # Train and validate
-    for epoch in FLAGS.epochs:
+    for epoch in range(FLAGS.epochs):
         train_result, _ = tf.estimator.train_and_evaluate(estimator, train_spec, vali_spec)
         for key, value in train_result.items():
             wandb.log({"train_{}".format(key): value})
