@@ -414,46 +414,45 @@ def train_and_eval():
             eval_metric_fns=get_eval_metric_fns(),
             train_op_fn=_train_op_fn)
 
-    estimator = tf.estimator.Estimator(
-        model_fn=tfr.model.make_groupwise_ranking_fn(
-            group_score_fn=make_score_fn(),
-            group_size=FLAGS.group_size,
-            transform_fn=make_transform_fn(),
-            ranking_head=ranking_head),
-        config=tf.estimator.RunConfig(
-            FLAGS.output_dir, save_checkpoints_steps=1000))
-
-    train_spec = tf.estimator.TrainSpec(
-        input_fn=train_input_fn,
-        hooks=[train_hook,
-               wandb.tensorflow.WandbHook(steps_per_log=500)
-               ],
-        max_steps=FLAGS.num_train_steps * FLAGS.epochs)
-    # Export model to accept tf.Example when group_size = 1.
-    if FLAGS.group_size == 1:
-        vali_spec = tf.estimator.EvalSpec(
-            input_fn=vali_input_fn,
-            hooks=[vali_hook,
-                   # wandb.tensorflow.WandbHook(steps_per_log=500)
-                   ],
-            steps=1,
-            exporters=tf.estimator.LatestExporter(
-                "latest_exporter",
-                serving_input_receiver_fn=make_serving_input_fn()),
-            start_delay_secs=0,
-            throttle_secs=30)
-    else:
-        vali_spec = tf.estimator.EvalSpec(
-            input_fn=vali_input_fn,
-            hooks=[vali_hook,
-                   # wandb.tensorflow.WandbHook(steps_per_log=500)
-                   ],
-            steps=1,
-            start_delay_secs=0,
-            throttle_secs=30)
-
     # Train and validate
     for epoch in range(FLAGS.epochs):
+        estimator = tf.estimator.Estimator(
+            model_fn=tfr.model.make_groupwise_ranking_fn(
+                group_score_fn=make_score_fn(),
+                group_size=FLAGS.group_size,
+                transform_fn=make_transform_fn(),
+                ranking_head=ranking_head),
+            config=tf.estimator.RunConfig(
+                FLAGS.output_dir, save_checkpoints_steps=1000))
+
+        train_spec = tf.estimator.TrainSpec(
+            input_fn=train_input_fn,
+            hooks=[train_hook,
+                   wandb.tensorflow.WandbHook(steps_per_log=500)
+                   ],
+            max_steps=FLAGS.num_train_steps)
+        # Export model to accept tf.Example when group_size = 1.
+        if FLAGS.group_size == 1:
+            vali_spec = tf.estimator.EvalSpec(
+                input_fn=vali_input_fn,
+                hooks=[vali_hook,
+                       # wandb.tensorflow.WandbHook(steps_per_log=500)
+                       ],
+                steps=1,
+                exporters=tf.estimator.LatestExporter(
+                    "latest_exporter",
+                    serving_input_receiver_fn=make_serving_input_fn()),
+                start_delay_secs=0,
+                throttle_secs=30)
+        else:
+            vali_spec = tf.estimator.EvalSpec(
+                input_fn=vali_input_fn,
+                hooks=[vali_hook,
+                       # wandb.tensorflow.WandbHook(steps_per_log=500)
+                       ],
+                steps=1,
+                start_delay_secs=0,
+                throttle_secs=30)
         train_result, _ = tf.estimator.train_and_evaluate(estimator, train_spec, vali_spec)
         for key, value in train_result.items():
             wandb.log({"train_{}".format(key): value})
