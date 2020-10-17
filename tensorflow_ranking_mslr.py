@@ -81,6 +81,7 @@ flags.DEFINE_string("output_dir", None, "Output directory for models.")
 
 flags.DEFINE_integer("train_batch_size", 32, "The batch size for training.")
 flags.DEFINE_integer("num_train_steps", 100000, "Number of steps for training.")
+flags.DEFINE_integer("epochs", 10, "Number of steps for training.")
 
 flags.DEFINE_float("learning_rate", 0.01, "Learning rate for optimizer.")
 flags.DEFINE_float("dropout_rate", 0.5, "The dropout rate before output layer.")
@@ -452,18 +453,20 @@ def train_and_eval():
             throttle_secs=30)
 
     # Train and validate
-    train_result, _ = tf.estimator.train_and_evaluate(estimator, train_spec, vali_spec)
-    for key, value in train_result.items():
-        wandb.log({"train_{}".format(key): value})
-    # Evaluate on the test data.
-    result = estimator.evaluate(input_fn=test_input_fn, hooks=[test_hook,
-                                                               wandb.tensorflow.WandbHook(steps_per_log=500)
-                                                               ]
-                                )
-    for key, value in result.items():
-        wandb.log({"eval_{}".format(key): value})
+    for epoch in FLAGS.epochs:
+        train_result, _ = tf.estimator.train_and_evaluate(estimator, train_spec, vali_spec)
+        for key, value in train_result.items():
+            wandb.log({"train_{}".format(key): value})
+        # Evaluate on the test data.
+        result = estimator.evaluate(input_fn=test_input_fn, hooks=[test_hook,
+                                                                   wandb.tensorflow.WandbHook(steps_per_log=500)
+                                                                   ]
+                                    )
+        for key, value in result.items():
+            wandb.log({"eval_{}".format(key): value})
 
-    wandb.save()
+        wandb.save()
+
 def main(_):
     tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.INFO)
     with tf.Graph().as_default():
