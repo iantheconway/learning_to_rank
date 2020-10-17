@@ -430,7 +430,7 @@ def train_and_eval():
             hooks=[train_hook,
                    wandb.tensorflow.WandbHook(steps_per_log=500)
                    ],
-            max_steps=FLAGS.num_train_steps)
+            max_steps=FLAGS.num_train_steps * (epoch + 1))
         # Export model to accept tf.Example when group_size = 1.
         if FLAGS.group_size == 1:
             vali_spec = tf.estimator.EvalSpec(
