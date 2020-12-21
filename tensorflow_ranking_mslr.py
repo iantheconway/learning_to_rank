@@ -145,7 +145,6 @@ def load_libsvm_data(path, list_size):
         label = float(tokens[0])
         qid = tokens[1]
         kv_pairs = [kv.split(":") for kv in tokens[2:]]
-        print(kv_pairs)
         features = {k: float(v) for (k, v) in kv_pairs}
         return qid, features, label
 
